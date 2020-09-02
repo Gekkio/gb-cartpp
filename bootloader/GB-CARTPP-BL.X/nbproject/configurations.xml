@@ -43,7 +43,7 @@
         <targetDevice>PIC18F45K50</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>noID</platformTool>
+        <platformTool></platformTool>
         <languageToolchain>pic-as</languageToolchain>
         <languageToolchainVersion>2.20</languageToolchainVersion>
         <platform>2</platform>
@@ -167,7 +167,7 @@
         <targetDevice>PIC18F45K50</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>noID</platformTool>
+        <platformTool></platformTool>
         <languageToolchain>pic-as</languageToolchain>
         <languageToolchainVersion>2.20</languageToolchainVersion>
         <platform>2</platform>
