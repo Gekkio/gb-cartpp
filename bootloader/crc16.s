@@ -95,10 +95,10 @@ _prepare_crc_table_loop:
   movlw 0x08
   movwf CRC_BIT, a
 _prepare_crc_table_bit:
-  bcf CARRY, a
+  bcf CARRY
   rlcf ROM_CRC, a
   rlcf ROM_CRC+1, a
-  btfsc CARRY, a ; skip next if C is 0
+  btfsc CARRY ; skip next if C is 0
   rcall _xor_polynomial
   decfsz CRC_BIT, a ; skip next if CRC_BIT goes to 0
   bra _prepare_crc_table_bit

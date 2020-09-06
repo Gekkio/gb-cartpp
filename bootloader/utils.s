@@ -99,11 +99,11 @@ _eecon_write_sequence:
   movwf EECON2, a
   movlw 0xAA
   movwf EECON2, a
-  bsf WR, a
+  bsf WR
   return
 
 _eecon_write_exit:
-  bcf WREN, a
+  bcf WREN
   return
 
 ; Inputs:
@@ -125,12 +125,12 @@ erase_flash_block:
 write_cfg:
   movwf WRITE_LEN, a
   movlw EECON1_EEPGD_MASK | EECON1_CFGS_MASK | EECON1_WREN_MASK
-  movwf EECON1,a
+  movwf EECON1, a
 _write_cfg_loop:
   movff POSTINC1, TABLAT
   tblwt*
   rcall _eecon_write_sequence
-  btfsc WRERR, a ; skip next if WRERR=0
+  btfsc WRERR ; skip next if WRERR=0
   bra _eecon_write_exit
 
   tblrd*+

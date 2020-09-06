@@ -77,35 +77,35 @@ bootloader_init:
 
   ; set internal oscillator to 16 MHz, 3xPLL
 _init_oscillator:
-  bsf SPLLMULT, a
+  bsf SPLLMULT
   movlw OSCCON_IRCF2_MASK | OSCCON_IRCF1_MASK | OSCCON_IRCF0_MASK
   movwf OSCCON, a
   movlw OSCCON2_PLLEN_MASK | OSCCON2_INTSRC_MASK
   movwf OSCCON2, a
 
 _wait_stable_clock:
-  btfss HFIOFS, a ; skip next if HFIOFS=1
+  btfss HFIOFS ; skip next if HFIOFS=1
   bra _wait_stable_clock
-  btfss PLLRDY, a ; skip next if PLLRDY=1
+  btfss PLLRDY ; skip next if PLLRDY=1
   bra _wait_stable_clock
 
   ; stack overflow
-  btfsc STKFUL, a ; skip next if STKFUL=0
+  btfsc STKFUL ; skip next if STKFUL=0
   bra bootloader
   ; stack underflow
-  btfsc STKUNF, a ; skip next if STKUNF=0
+  btfsc STKUNF ; skip next if STKUNF=0
   bra bootloader
   ; watchdog
-  btfss TO, a ; skip next if TO=1
+  btfss TO ; skip next if TO=1
   bra bootloader
   ; reset instruction
-  btfss RI, a ; skip next if RI=1
+  btfss RI ; skip next if RI=1
   bra _check_reset_magic
   ; power-on reset
-  btfss POR, a ; skip next if POR=1
+  btfss POR ; skip next if POR=1
   bra _run_application
   ; brown-out reset
-  btfss BOR, a ; skip next if BOR=1
+  btfss BOR ; skip next if BOR=1
   bra _run_application
 
   bra bootloader
@@ -152,7 +152,7 @@ _bootloader_detached:
 _bootloader_attached:
   clrwdt
   ; keep looping until SE0 condition ends
-  btfsc SE0, a ; skip next if SE0=0
+  btfsc SE0 ; skip next if SE0=0
   bra _bootloader_attached
 
   clrf UIR, a
@@ -160,7 +160,7 @@ _bootloader_attached:
 _bootloader_powered:
   clrwdt
   ; keep looping until USB reset
-  btfss URSTIF, a ; skip next if URSTIF=1
+  btfss URSTIF ; skip next if URSTIF=1
   bra _bootloader_powered
 
   fcall usb_reset
@@ -169,21 +169,21 @@ _bootloader_default:
   clrwdt
   tstfsz SYS_RESET, a ; skip next if SYS_RESET=0
   rcall _sys_reset_loop
-  btfsc URSTIF, a ; skip next if URSTIF=0
+  btfsc URSTIF ; skip next if URSTIF=0
   call usb_reset
 
-  btfsc STALLIF, a ; skip next if STALLIF=0
-  bcf STALLIF, a
+  btfsc STALLIF ; skip next if STALLIF=0
+  bcf STALLIF
 
-  btfsc SOFIF, a ; skip next if SOFIF=0
+  btfsc SOFIF ; skip next if SOFIF=0
   call usb_sof_handler
 
-  btfss TRNIF, a ; skip next if TRNIF=1
+  btfss TRNIF ; skip next if TRNIF=1
   bra _bootloader_default
 
   movf USTAT, w, a
   movwf USTAT_SAVE, a
-  bcf TRNIF, a
+  bcf TRNIF
   andlw 0b01111000
   bz _ep0_transfer
 

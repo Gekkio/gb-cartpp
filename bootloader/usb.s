@@ -61,7 +61,7 @@ DATA_ADDR: ds 3
 usb_detach:
   ; > 24.2 USB Status and Control
   ; > when disabling the USB module, make sure the SUSPND bit is clear prior to clearing the USBEN bit"
-  bcf SUSPND, a
+  bcf SUSPND
   clrf UCON, a
   clrf UCFG, a
 
@@ -89,19 +89,19 @@ usb_reset:
   fcall memclear_fsr0
 
   ; reset ping pong pointers
-  bsf PPBRST, a
+  bsf PPBRST
   ; clear USB address
   clrf UADDR, a
   ; enable packet processing
-  bcf PKTDIS, a
+  bcf PKTDIS
   ; stop resetting ping pong pointers
-  bcf PPBRST, a
+  bcf PPBRST
 
 _flush_transactions:
-  btfss TRNIF, a ; skip next if TRNIF=1
+  btfss TRNIF ; skip next if TRNIF=1
   bra _ep0_init
 
-  bcf TRNIF, a
+  bcf TRNIF
   ; > 24.2.3 USB status register
   ; > If the next data in the FIFO holding register is valid, the SIE will reassert the interrupt within
   ; > 6 Tcy of clearing TRNIF
@@ -166,8 +166,8 @@ _ep0_dts_toggle:
 usb_attach:
   clrf UCON, a
 _usb_attach_poll:
-  bsf USBEN, a
-  btfss USBEN, a ; skip next if USBEN=1
+  bsf USBEN
+  btfss USBEN ; skip next if USBEN=1
   bra _usb_attach_poll
   return
 
@@ -181,7 +181,7 @@ _ep0_cancel_tx:
   return
 
 usb_sof_handler:
-  bcf SOFIF, a
+  bcf SOFIF
   btfsc TX_STATF, TX_STATF_DIR_OUT, a ; skip next if TX_STATF_DIR_OUT=0
   bra _ep0_timeout_check
   btfsc TX_STATF, TX_STATF_DIR_IN, a ; skip next if TX_STATF_DIR_IN=0
@@ -211,7 +211,7 @@ _ep0_setup:
   rcall _ep0_setup_request
 
   movwf TX_STATF, a
-  bcf PKTDIS, a
+  bcf PKTDIS
   bsf TX_DATAF, TX_DATAF_DTS, a
   btfsc TX_STATF, TX_STATF_DIR_OUT, a ; skip next if TX_STATF_DIR_OUT=0
   bra _ep0_setup_done_out
@@ -227,11 +227,11 @@ _ep0_setup_request:
   movlw 0b01100000
   andwf BANKMASK(EP0_OUT_BUFFER + bmRequestType), w, b
   ; bmRequestType bits 6-5 are 0b00 if it's a standard request
-  btfsc ZERO, a ; skip next if Z=0
+  btfsc ZERO ; skip next if Z=0
   goto usb_ep0_std_setup
   ; bmRequestType bits 6-5 are 0b10 if it's a vendor request
   sublw 0b01000000
-  btfsc ZERO, a ; skip next if Z=0
+  btfsc ZERO ; skip next if Z=0
   goto usb_vendor_setup
 
   retlw TX_STATF_REJECT
@@ -379,7 +379,7 @@ _ep0_in_buffer_cnt:
 _ep0_in_buffer_memcpy:
   movwf BANKMASK(EP0_IN_CNT), b
   movf BANKMASK(EP0_IN_CNT), w, b
-  btfsc ZERO, a ; skip next if Z=0
+  btfsc ZERO ; skip next if Z=0
   return
   lfsr 0, EP0_IN_BUFFER
   btfss TX_STATF, TX_STATF_RAM_DATA, a ; skip next if TX_STATF_RAM_DATA=1
