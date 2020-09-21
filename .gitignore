@@ -3,3 +3,5 @@
 *.img
 *.log
 *.swp
+.clangd/
+target/
