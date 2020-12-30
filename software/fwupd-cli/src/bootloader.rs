@@ -30,8 +30,6 @@ use std::rc::Rc;
 use std::thread;
 use std::time::{Duration, Instant};
 
-use crate::device::format_device;
-
 fn poll_after_reset<F: Fn(&UsbDevice<Unclaimed>) -> bool>(
     usb: &Rc<Usb>,
     f: F,
@@ -68,7 +66,7 @@ pub fn update_firmware(fw: FirmwareArchive) -> Result<(), Error> {
         .sum::<u32>();
     if ready_devices == 0 {
         error!("No GB-CARTPP-XC devices detected");
-        for device in devices.iter().map(format_device) {
+        for device in &devices {
             error!("Detected but unusable {}", device);
         }
         process::exit(1);
@@ -80,7 +78,7 @@ pub fn update_firmware(fw: FirmwareArchive) -> Result<(), Error> {
         process::exit(1);
     }
     if log_enabled!(log::Level::Debug) {
-        for device in devices.iter().map(format_device) {
+        for device in &devices {
             debug!("{}", device);
         }
     }
@@ -92,9 +90,9 @@ pub fn update_firmware(fw: FirmwareArchive) -> Result<(), Error> {
         })
         .exactly_one()
         .unwrap();
-    println!("Using {}", format_device(&device));
+    println!("Using {}", device);
     if !device.kind.is_bootloader() {
-        debug!("Resetting {}", format_device(&device));
+        debug!("Resetting {}", device);
         let address_before_reset = device.usb_address();
         let _ = device.enter_bootloader();
         device = poll_after_reset(&usb, |d| {

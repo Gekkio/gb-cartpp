@@ -20,6 +20,7 @@
 use libusb1_sys::constants::*;
 use libusb1_sys::*;
 use std::char;
+use std::fmt;
 use std::ffi::CStr;
 use std::marker::PhantomData;
 use std::mem;
@@ -400,5 +401,30 @@ impl UsbDevice<Unclaimed> {
             kind: self.kind,
             _mode: PhantomData,
         })
+    }
+}
+
+impl fmt::Display for UsbDevice<Unclaimed> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self.kind {
+            UsbDeviceKind::Bootloader {
+                bl_version,
+                fw_version,
+            } => write!(f,
+                "USB device {:03}: GB-CARTPP-XC v{} (bootloader v{})",
+                self.usb_address(),
+                fw_version,
+                bl_version,
+            ),
+            UsbDeviceKind::Firmware { fw_version, .. } => write!(f,
+                "USB device {:03}: GB-CARTPP-XC v{}",
+                self.usb_address(),
+                fw_version,
+            ),
+            UsbDeviceKind::Unusable => write!(f,
+                "USB device {:03}: GB-CARTPP-XC? (no driver installed)",
+                self.usb_address()
+            ),
+        }
     }
 }

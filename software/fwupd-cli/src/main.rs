@@ -28,7 +28,6 @@ use std::io::{self, BufReader};
 use std::process;
 
 mod bootloader;
-mod device;
 
 fn build_app() -> App<'static, 'static> {
     App::new("gb-cartpp-fwupd")
