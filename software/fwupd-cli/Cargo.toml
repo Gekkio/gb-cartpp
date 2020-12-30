@@ -20,9 +20,9 @@ clap = "2.33"
 crc16 = "0.4"
 gb-cartpp-fwupd-lib = { path = "../fwupd-lib" }
 indicatif = "0.15"
-itertools = "0.9"
+itertools = "0.10"
 log = "0.4"
-simplelog = "0.8"
+simplelog = "0.9"
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"

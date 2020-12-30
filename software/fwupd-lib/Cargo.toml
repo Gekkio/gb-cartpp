@@ -20,7 +20,7 @@ ihex = "3.0"
 libusb1-sys = "0.4"
 log = "0.4"
 pgp = "0.7"
-rand = { version = "0.7", features = ["small_rng"] }
+rand = { version = "0.8", features = ["small_rng"] }
 rsa = "0.3"
 tar = "0.4"
 thiserror = "1.0"
