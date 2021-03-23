@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2019-2020 Joonas Javanainen <joonas.javanainen@gmail.com>
+SPDX-FileCopyrightText: 2019-2021 Joonas Javanainen <joonas.javanainen@gmail.com>
 
 SPDX-License-Identifier: CC0-1.0
 -->
