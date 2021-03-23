@@ -62,7 +62,7 @@ _set_configuration:
   fcall usb_assert_no_data
 
   movf BANKMASK(EP0_OUT_BUFFER + wValueLsb), w, b
-  decf WREG, a
+  iorwf WREG, a
   bz _set_configuration_0_or_1
   decf WREG, a
   bz _set_configuration_0_or_1
