@@ -45,7 +45,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>noID</platformTool>
         <languageToolchain>pic-as</languageToolchain>
-        <languageToolchainVersion>2.31</languageToolchainVersion>
+        <languageToolchainVersion>2.32</languageToolchainVersion>
         <platform>2</platform>
       </toolsSet>
       <packs>
@@ -170,7 +170,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>noID</platformTool>
         <languageToolchain>pic-as</languageToolchain>
-        <languageToolchainVersion>2.30</languageToolchainVersion>
+        <languageToolchainVersion>2.32</languageToolchainVersion>
         <platform>2</platform>
       </toolsSet>
       <packs>
