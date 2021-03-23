@@ -9,8 +9,8 @@
 #include "usb.inc"
 
   global usb_ep0_std_setup
-  extrn TX_ADDR, EP0_OUT_BUFFER, DATA_CNT
-  extrn usb_assert_request_type, usb_assert_no_data
+  extrn DEV_CFG, TX_ADDR, EP0_OUT_BUFFER, DATA_CNT, DATA_ADDR
+  extrn usb_assert_request_type, usb_assert_value, usb_assert_index, usb_assert_no_data
   extrn usb_save_rom_data_addr
   extrn DEVICE_DESCRIPTOR, CONFIG_DESCRIPTOR
   extrn STRING_DESCRIPTOR0, STRING_DESCRIPTOR1, STRING_DESCRIPTOR2
@@ -30,8 +30,20 @@ usb_ep0_std_setup:
   bz _set_address
 
   movf BANKMASK(EP0_OUT_BUFFER + bRequest), w, b
+  sublw GET_CONFIGURATION
+  bz _get_configuration
+
+  movf BANKMASK(EP0_OUT_BUFFER + bRequest), w, b
   sublw SET_CONFIGURATION
   bz _set_configuration
+
+  movf BANKMASK(EP0_OUT_BUFFER + bRequest), w, b
+  sublw GET_INTERFACE
+  bz _get_interface
+
+  movf BANKMASK(EP0_OUT_BUFFER + bRequest), w, b
+  sublw SET_INTERFACE
+  bz _set_interface
 
   retlw TX_STATF_REJECT
 
@@ -46,7 +58,7 @@ _assert_in_request:
 _get_status:
   rcall _assert_in_request
 
-  mov_tblptr STATUS_RESPONSE
+  mov_tblptr ZEROES
   movlw 0x02
   bra _static_rom_response
 
@@ -56,6 +68,18 @@ _set_address:
 
   movff EP0_OUT_BUFFER + wValueLsb, TX_ADDR
   retlw (1 << TX_STATF_ADDR) | (1 << TX_STATF_DIR_OUT)
+
+_get_configuration:
+  rcall _assert_in_request
+
+  movlw 0x01
+  movwf DATA_CNT, a
+  movlw low(DEV_CFG)
+  movwf DATA_ADDR, a
+  movlw high(DEV_CFG)
+  movwf DATA_ADDR+1, a
+
+  retlw (1 << TX_STATF_DATA_STAGE) | (1 << TX_STATF_DIR_IN) | (1 << TX_STATF_RAM_DATA)
 
 _set_configuration:
   rcall _assert_out_request
@@ -69,7 +93,33 @@ _set_configuration:
   retlw TX_STATF_REJECT
 
 _set_configuration_0_or_1:
-  retlw (1 << TX_STATF_DIR_OUT) ; 0x00
+  movf BANKMASK(EP0_OUT_BUFFER + wValueLsb), w, b
+  movwf DEV_CFG, a
+  retlw (1 << TX_STATF_DIR_OUT)
+
+_get_interface:
+  movlw 0x81
+  fcall usb_assert_request_type
+  ; interface must be 0
+  movlw 0x00
+  fcall usb_assert_value
+
+  mov_tblptr ZEROES
+  movlw 0x01
+  bra _static_rom_response
+
+_set_interface:
+  movlw 0x01
+  fcall usb_assert_request_type
+  movlw 0x00
+  ; alternate setting must be 0
+  fcall usb_assert_value
+  movlw 0x00
+  ; interface must be 0
+  fcall usb_assert_index
+  fcall usb_assert_no_data
+
+  retlw (1 << TX_STATF_DIR_OUT)
 
 _get_descriptor:
   rcall _assert_in_request
@@ -141,7 +191,7 @@ _static_rom_response:
   retlw (1 << TX_STATF_DATA_STAGE) | (1 << TX_STATF_DIR_IN)
 
   psect data
-STATUS_RESPONSE:
+ZEROES:
   db 0x00, 0x00
 
   end

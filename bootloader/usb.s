@@ -10,9 +10,9 @@
 #include "usb.inc"
 
   global usb_reset, usb_attach, usb_detach, usb_service_ep0, usb_sof_handler
-  global usb_assert_request_type, usb_assert_no_data
+  global usb_assert_request_type, usb_assert_value, usb_assert_no_data, usb_assert_index
   global usb_save_rom_data_addr, usb_load_rom_data_addr, usb_save_ram_data_addr
-  global EP0_OUT_BUFFER, EP0_OUT_CNT, TX_STATF, TX_ADDR, DATA_ADDR, DATA_CNT
+  global EP0_OUT_BUFFER, EP0_OUT_CNT, DEV_CFG, TX_STATF, TX_ADDR, DATA_ADDR, DATA_CNT
   extrn memcpy_fsr0_from_tblptr, memclear_fsr0, memcpy_fsr0_from_fsr1
   extrn usb_ep0_std_setup
   extrn usb_vendor_setup, usb_vendor_out_data
@@ -32,6 +32,8 @@ EP0_OUT_BUFFER: ds EP0_BUFFER_SIZE
 EP0_IN_BUFFER: ds EP0_BUFFER_SIZE
 
   psect udata_acs
+; USB device state
+DEV_CFG: ds 1
 ; USB transaction state
 TX_STATF: ds 1
 TX_DATAF: ds 1
@@ -76,6 +78,8 @@ usb_reset:
   bsf PPBRST
   ; clear USB address
   clrf UADDR, a
+  ; clear configuration number
+  clrf DEV_CFG, a
   ; enable packet processing
   bcf PKTDIS
   ; stop resetting ping pong pointers
@@ -271,6 +275,24 @@ usb_assert_request_type:
 _usb_assert_fail:
   pop
   retlw TX_STATF_REJECT
+
+; Inputs:
+;   W: expected wValue
+usb_assert_value:
+  cpfseq BANKMASK(EP0_OUT_BUFFER + wValueLsb), b
+  bra _usb_assert_fail
+  tstfsz BANKMASK(EP0_OUT_BUFFER + wValueMsb), b ; skip next if wValueMsb=0
+  bra _usb_assert_fail
+  return
+
+; Inputs:
+;   W: expected wIndex
+usb_assert_index:
+  cpfseq BANKMASK(EP0_OUT_BUFFER + wIndexLsb), b
+  bra _usb_assert_fail
+  tstfsz BANKMASK(EP0_OUT_BUFFER + wIndexMsb), b ; skip next if wIndexMsb=0
+  bra _usb_assert_fail
+  return
 
 usb_assert_no_data:
   tstfsz BANKMASK(EP0_OUT_BUFFER + wLengthLsb), b ; skip next if wLengthLsb=0
