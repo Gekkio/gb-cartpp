@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2019-2021 Joonas Javanainen <joonas.javanainen@gmail.com>
+# SPDX-FileCopyrightText: 2019-2022 Joonas Javanainen <joonas.javanainen@gmail.com>
 #
 # SPDX-License-Identifier: MIT OR Apache-2.0
 
@@ -29,4 +29,4 @@ winres = "0.1.12"
 
 [package.metadata.winres]
 OriginalFilename = "gb-cartpp-fwupd.exe"
-LegalCopyright = "Copyright © 2019-2021 Joonas Javanainen"
+LegalCopyright = "Copyright © 2019-2022 Joonas Javanainen"
