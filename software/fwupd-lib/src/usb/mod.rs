@@ -117,10 +117,7 @@ impl Usb {
         let mut descriptor = unsafe { mem::zeroed() };
         check_libusb(unsafe { libusb_get_device_descriptor(device, &mut descriptor) })?;
         if descriptor.idVendor != 0x16c0
-            || descriptor.idProduct != 0x05dc
-            || descriptor.bDeviceClass != 0xff
-            || descriptor.bDeviceSubClass != 0xff
-            || descriptor.bDeviceProtocol != 0xff
+            || (descriptor.idProduct != 0x05dc && descriptor.idProduct != 0x05e1)
             || descriptor.iManufacturer == 0
             || descriptor.iProduct == 0
         {
