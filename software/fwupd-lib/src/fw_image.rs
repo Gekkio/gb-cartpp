@@ -9,7 +9,7 @@ use rsa::errors::Error as RsaError;
 use std::io::{self, Cursor, Read};
 use thiserror::Error;
 
-use crate::{FirmwareVersion, CONFIG_BLOCK_SIZE};
+use crate::{FirmwareVersion, CONFIG_BLOCK_SIZE, FLASH_BLOCK_SIZE};
 
 static SIGNING_KEYS: [&str; 1] = [include_str!(
     "../../../signing-keys/E2984F7B7562E0A759A75F36BCF068A71B6D5A67.asc"
@@ -161,10 +161,10 @@ const MAIN_FIRMWARE_START: usize = 0x800;
 impl FirmwareImage {
     pub fn iter_flash_blocks(&self) -> impl Iterator<Item = (u32, &[u8])> {
         self.flash
-            .chunks_exact(0x100)
+            .chunks_exact(FLASH_BLOCK_SIZE)
             .enumerate()
             .filter_map(|(idx, block_data)| {
-                let addr = (idx * 0x100) as u32;
+                let addr = (idx * FLASH_BLOCK_SIZE) as u32;
                 if addr < (MAIN_FIRMWARE_START as u32) {
                     None
                 } else {
