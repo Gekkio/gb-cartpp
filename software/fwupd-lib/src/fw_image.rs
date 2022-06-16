@@ -4,8 +4,7 @@
 
 use flate2::read::GzDecoder;
 use log::warn;
-use pgp::errors::Error as PgpError;
-use pgp::{Deserializable, SignedPublicKey, StandaloneSignature};
+use pgp::{errors::Error as PgpError, Deserializable, SignedPublicKey, StandaloneSignature};
 use rsa::errors::Error as RsaError;
 use std::io::{self, Cursor, Read};
 use thiserror::Error;

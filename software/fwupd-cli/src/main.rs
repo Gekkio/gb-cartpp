@@ -3,25 +3,28 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 use anyhow::Error;
-use clap::{App, Arg, ArgMatches};
+use clap::{builder::OsStringValueParser, App, Arg, ArgAction, ArgMatches};
 use gb_cartpp_fwupd::FirmwareArchive;
 use log::{debug, error, warn};
-use simplelog::{LevelFilter, TermLogger, TerminalMode};
-use std::borrow::Cow;
-use std::fs::File;
-use std::io::{self, BufReader};
-use std::process;
+use simplelog::{ColorChoice, LevelFilter, TermLogger, TerminalMode};
+use std::{
+    borrow::Cow,
+    ffi::OsString,
+    fs::File,
+    io::{self, BufReader},
+    process,
+};
 
 mod bootloader;
 
-fn build_app() -> App<'static, 'static> {
+fn build_app() -> App<'static> {
     App::new("gb-cartpp-fwupd")
         .version(env!("CARGO_PKG_VERSION"))
         .author(env!("CARGO_PKG_AUTHORS"))
         .arg(
             Arg::with_name("v")
-                .short("v")
-                .multiple(true)
+                .short('v')
+                .action(ArgAction::Count)
                 .help("Sets the level of verbosity"),
         )
         .arg(
@@ -33,12 +36,13 @@ fn build_app() -> App<'static, 'static> {
             Arg::with_name("IMAGE")
                 .help("Sets the firmware image file to use")
                 .required(true)
+                .value_parser(OsStringValueParser::new())
                 .index(1),
         )
 }
 
 fn run(matches: &ArgMatches) -> Result<(), Error> {
-    let level_filter = match matches.occurrences_of("v") {
+    let level_filter = match matches.get_one::<u8>("v").copied().unwrap_or_default() {
         0 => LevelFilter::Info,
         1 => LevelFilter::Debug,
         _ => LevelFilter::Trace,
@@ -48,9 +52,10 @@ fn run(matches: &ArgMatches) -> Result<(), Error> {
         level_filter,
         simplelog::Config::default(),
         TerminalMode::Mixed,
+        ColorChoice::Auto,
     );
 
-    let input = matches.value_of_os("IMAGE").unwrap();
+    let input = matches.get_one::<OsString>("IMAGE").unwrap();
     let source = if input == "-" {
         Cow::Borrowed("standard input")
     } else {

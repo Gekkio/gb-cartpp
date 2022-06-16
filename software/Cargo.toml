@@ -7,3 +7,4 @@ members = [
     "fwupd-cli",
     "fwupd-lib",
 ]
+resolver = "2"

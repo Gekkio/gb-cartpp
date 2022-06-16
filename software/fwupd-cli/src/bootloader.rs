@@ -10,10 +10,12 @@ use gb_cartpp_fwupd::{
 use indicatif::{ProgressBar, ProgressStyle};
 use itertools::Itertools;
 use log::{debug, error, log_enabled};
-use std::process;
-use std::rc::Rc;
-use std::thread;
-use std::time::{Duration, Instant};
+use std::{
+    process,
+    rc::Rc,
+    thread,
+    time::{Duration, Instant},
+};
 
 fn poll_after_reset<F: Fn(&UsbDevice<Unclaimed>) -> bool>(
     usb: &Rc<Usb>,

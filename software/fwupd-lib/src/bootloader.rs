@@ -2,9 +2,11 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use crate::fw_image::FirmwareImage;
-use crate::usb::{BootloaderMode, Unclaimed, UsbDevice, UsbDeviceKind};
-use crate::{DriverError, FirmwareVersion, VerifyResult, FLASH_BLOCK_SIZE};
+use crate::{
+    fw_image::FirmwareImage,
+    usb::{BootloaderMode, Unclaimed, UsbDevice, UsbDeviceKind},
+    DriverError, FirmwareVersion, VerifyResult, FLASH_BLOCK_SIZE,
+};
 
 pub struct BootloaderDriver {
     device: UsbDevice<BootloaderMode>,

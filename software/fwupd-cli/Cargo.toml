@@ -6,7 +6,7 @@
 name = "gb-cartpp-fwupd"
 version = "0.0.0"
 authors = ["Joonas Javanainen <joonas.javanainen@gmail.com>"]
-edition = "2018"
+edition = "2021"
 license = "MIT OR Apache-2.0"
 build = "build.rs"
 
@@ -15,17 +15,17 @@ name = "gb-cartpp-fwupd"
 path = "src/main.rs"
 
 [dependencies]
-anyhow = "1.0"
-clap = "2.33"
-crc16 = "0.4"
+anyhow = "1.0.57"
+clap = "3.2.5"
+crc16 = "0.4.0"
 gb-cartpp-fwupd-lib = { path = "../fwupd-lib" }
-indicatif = "0.15"
-itertools = "0.10"
-log = "0.4"
-simplelog = "0.9"
+indicatif = "0.16.2"
+itertools = "0.10.3"
+log = "0.4.17"
+simplelog = "0.12.0"
 
 [target.'cfg(windows)'.build-dependencies]
-winres = "0.1"
+winres = "0.1.12"
 
 [package.metadata.winres]
 OriginalFilename = "gb-cartpp-fwupd.exe"

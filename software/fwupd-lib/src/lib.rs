@@ -2,8 +2,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use std::error::Error;
-use std::fmt;
+use std::{error::Error, fmt};
 
 pub mod bootloader;
 pub mod fw_image;

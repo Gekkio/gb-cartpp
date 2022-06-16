@@ -6,21 +6,21 @@
 name = "gb-cartpp-fwupd-lib"
 version = "0.0.0"
 authors = ["Joonas Javanainen <joonas.javanainen@gmail.com>"]
-edition = "2018"
+edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [lib]
 name = "gb_cartpp_fwupd"
 
 [dependencies]
-bitflags = "1.2"
-crc16 = "0.4"
-flate2 = "1.0"
-ihex = "3.0"
-libusb1-sys = "0.4"
-log = "0.4"
-pgp = "0.7"
-rand = { version = "0.8", features = ["small_rng"] }
+bitflags = "1.3.2"
+crc16 = "0.4.0"
+flate2 = "1.0.24"
+ihex = "3.0.0"
+libusb1-sys = "0.6.2"
+log = "0.4.17"
+pgp = "0.7.2"
+rand = { version = "0.8.5", features = ["small_rng"] }
 rsa = "0.3"
-tar = "0.4"
-thiserror = "1.0"
+tar = "0.4.38"
+thiserror = "1.0.31"
