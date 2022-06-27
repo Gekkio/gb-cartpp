@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
+use bitflags::bitflags;
 use std::{error::Error, fmt};
 
 pub mod bootloader;
@@ -11,6 +12,28 @@ mod usb;
 pub use bootloader::*;
 pub use fw_image::*;
 pub use usb::*;
+
+bitflags! {
+    pub struct Rcon: u8 {
+        const IPEN = 1 << 7;
+        const SBOREN = 1 << 6;
+        const RI = 1 << 4;
+        const TO = 1 << 3;
+        const PD = 1 << 2;
+        const POR = 1 << 1;
+        const BOR = 1 << 0;
+    }
+    pub struct StkPtr: u8 {
+        const STKFUL = 1 << 7;
+        const STKUNF = 1 << 6;
+    }
+}
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub struct Diagnostics {
+    pub rcon: Rcon,
+    pub stkptr: StkPtr,
+}
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct FirmwareVersion {

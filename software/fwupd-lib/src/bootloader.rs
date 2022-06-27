@@ -5,7 +5,7 @@
 use crate::{
     fw_image::FirmwareImage,
     usb::{BootloaderMode, Unclaimed, UsbDevice, UsbDeviceKind},
-    DriverError, FirmwareVersion, VerifyResult, FLASH_BLOCK_SIZE,
+    Diagnostics, DriverError, FirmwareVersion, Rcon, StkPtr, VerifyResult, FLASH_BLOCK_SIZE,
 };
 
 pub struct BootloaderDriver {
@@ -50,6 +50,20 @@ impl BootloaderDriver {
     }
     pub fn reset_bootloader(self) -> Result<(), DriverError> {
         self.device.enter_bootloader()
+    }
+    pub fn read_diagnostics(&self) -> Result<Diagnostics, DriverError> {
+        let rcon = self.device.read_byte(0x8000_0fd0)?;
+        let stkptr = self.device.read_byte(0x8000_0ffc)?;
+        Ok(Diagnostics {
+            rcon: Rcon::from_bits_truncate((rcon & 0b111_00000) | (!rcon & 0b000_11111)),
+            stkptr: StkPtr::from_bits_truncate(stkptr),
+        })
+    }
+    pub fn dump_sfrs(&self) -> Result<Vec<u8>, DriverError> {
+        let mut buffer = vec![0; 169];
+        let len = self.device.read(0x8000_0f57, &mut buffer)?;
+        buffer.truncate(len);
+        Ok(buffer)
     }
     pub fn write_flash<F: FnMut(u32) -> ()>(
         &self,
