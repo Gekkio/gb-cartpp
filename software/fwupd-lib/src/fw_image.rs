@@ -12,7 +12,7 @@ use thiserror::Error;
 use crate::{FirmwareVersion, CONFIG_BLOCK_SIZE, FLASH_BLOCK_SIZE};
 
 static SIGNING_KEYS: [&str; 1] = [include_str!(
-    "../../../signing-keys/E2984F7B7562E0A759A75F36BCF068A71B6D5A67.asc"
+    "../../signing-keys/E2984F7B7562E0A759A75F36BCF068A71B6D5A67.asc"
 )];
 
 #[derive(Error, Debug)]
