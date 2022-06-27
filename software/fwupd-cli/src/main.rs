@@ -42,18 +42,19 @@ fn build_app() -> App<'static> {
 }
 
 fn run(matches: &ArgMatches) -> Result<(), Error> {
-    let level_filter = match matches.get_one::<u8>("v").copied().unwrap_or_default() {
-        0 => LevelFilter::Info,
-        1 => LevelFilter::Debug,
-        _ => LevelFilter::Trace,
+    let (level_filter, config) = match matches.get_one::<u8>("v").copied().unwrap_or_default() {
+        0 => (
+            LevelFilter::Info,
+            simplelog::ConfigBuilder::new()
+                .set_time_level(LevelFilter::Debug)
+                .set_max_level(LevelFilter::Debug)
+                .build(),
+        ),
+        1 => (LevelFilter::Debug, simplelog::Config::default()),
+        _ => (LevelFilter::Trace, simplelog::Config::default()),
     };
 
-    let _ = TermLogger::init(
-        level_filter,
-        simplelog::Config::default(),
-        TerminalMode::Mixed,
-        ColorChoice::Auto,
-    );
+    let _ = TermLogger::init(level_filter, config, TerminalMode::Mixed, ColorChoice::Auto);
 
     let input = matches.get_one::<OsString>("IMAGE").unwrap();
     let source = if input == "-" {

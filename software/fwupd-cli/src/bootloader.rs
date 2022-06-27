@@ -9,7 +9,7 @@ use gb_cartpp_fwupd::{
 };
 use indicatif::{ProgressBar, ProgressStyle};
 use itertools::Itertools;
-use log::{debug, error, log_enabled};
+use log::{debug, error, info, log_enabled};
 use std::{
     process,
     rc::Rc,
@@ -77,7 +77,7 @@ pub fn update_firmware(fw: FirmwareArchive) -> Result<(), Error> {
         })
         .exactly_one()
         .unwrap();
-    println!("Using {}", device);
+    info!("Using {}", device);
     if !device.kind.is_bootloader() {
         debug!("Resetting {}", device);
         let address_before_reset = device.usb_address();
@@ -95,18 +95,18 @@ pub fn update_firmware(fw: FirmwareArchive) -> Result<(), Error> {
         major: fw.id[3],
         minor: fw.id[2],
     };
-    println!(
-        "Firmware image: v{} (checksum {:#04x})",
+    info!(
+        "Firmware image: v{} (checksum 0x{:04x})",
         image_version, image_checksum
     );
-    println!(
-        "Device:         v{} (checksum {:#04x})",
+    info!(
+        "Device:         v{} (checksum 0x{:04x})",
         drv.firmware_version(),
         fw_checksum
     );
 
     if drv.firmware_version() == image_version && fw_checksum == image_checksum {
-        println!("No update is necessary");
+        info!("No update is necessary");
         drv.reset()?;
         poll_after_reset(&usb, |d| d.usb_address() != address && d.kind.is_firmware())?;
         return Ok(());
@@ -121,7 +121,7 @@ pub fn update_firmware(fw: FirmwareArchive) -> Result<(), Error> {
     })?;
     progress.finish();
 
-    println!("Updating ID bytes");
+    info!("Updating ID bytes");
     drv.write_id(&fw)?;
 
     let style = ProgressStyle::default_bar().template("{msg} {bar} {percent} %");
@@ -156,7 +156,7 @@ pub fn update_firmware(fw: FirmwareArchive) -> Result<(), Error> {
         process::exit(1);
     }
 
-    println!("Verifying ID bytes");
+    info!("Verifying ID bytes");
     let result = drv.verify_id(&fw)?;
     if let VerifyResult::Invalid {
         errors,
@@ -170,7 +170,7 @@ pub fn update_firmware(fw: FirmwareArchive) -> Result<(), Error> {
         process::exit(1);
     }
 
-    println!("Verifying config bytes");
+    info!("Verifying config bytes");
     let result = drv.verify_cfg(&fw)?;
     if let VerifyResult::Invalid {
         errors,
@@ -184,10 +184,10 @@ pub fn update_firmware(fw: FirmwareArchive) -> Result<(), Error> {
         process::exit(1);
     }
 
-    println!("Resetting device");
+    info!("Resetting device");
     drv.reset()?;
     device = poll_after_reset(&usb, |d| d.usb_address() != address && d.kind.is_firmware())?;
-    println!(
+    info!(
         "Firmware updated to v{}.{}",
         device.version().0,
         device.version().1
