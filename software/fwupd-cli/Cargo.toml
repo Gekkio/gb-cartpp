@@ -11,7 +11,7 @@ license = "MIT OR Apache-2.0"
 build = "build.rs"
 
 [[bin]]
-name = "gb-cartpp-fwupd"
+name = "gbcartpp-fwupd"
 path = "src/main.rs"
 
 [dependencies]
@@ -28,5 +28,5 @@ simplelog = "0.12.0"
 winres = "0.1.12"
 
 [package.metadata.winres]
-OriginalFilename = "gb-cartpp-fwupd.exe"
+OriginalFilename = "gbcartpp-fwupd.exe"
 LegalCopyright = "Copyright © 2019-2022 Joonas Javanainen"
