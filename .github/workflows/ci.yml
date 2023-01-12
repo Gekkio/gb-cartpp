@@ -58,7 +58,9 @@ jobs:
           rustup toolchain install stable --profile minimal
           rustup default stable
       - name: Install cross
-        run: .github/scripts/install-cross.sh
+        run: |
+          .github/scripts/install-cross.sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Cache dependencies
         uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6
         with:
