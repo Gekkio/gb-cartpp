@@ -109,20 +109,21 @@ jobs:
         uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6
         with:
           workspaces: software
-      - name: Compile
-        run: |
-          cargo build --all --release
-          cargo build --all --release --target aarch64-apple-darwin
+      - name: Compile (x86_64)
+        run: cargo build --all --release
         working-directory: software
-      - name: Persist binaries
+      - name: Compile (aarch64)
+        run: cargo build --all --release --target aarch64-apple-darwin
+        working-directory: software
+      - name: Persist binaries (x86_64)
         uses: actions/upload-artifact@v3
         with:
           name: x86_64-apple-darwin
           path: |
             software/target/release/gbcartpp-fwupd
-      - name: Persist binaries
+      - name: Persist binaries (aarch64)
         uses: actions/upload-artifact@v3
         with:
           name: aarch64-apple-darwin
           path: |
-            software/target/release/aarch64-apple-darwin/gbcartpp-fwupd
+            software/target/aarch64-apple-darwin/release/gbcartpp-fwupd
