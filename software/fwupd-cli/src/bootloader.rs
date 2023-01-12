@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use anyhow::Error;
+use eyre::Report;
 use gb_cartpp_fwupd::{
     BootloaderDriver, FirmwareArchive, FirmwareVersion, Unclaimed, Usb, UsbDevice, UsbDeviceKind,
     VerifyResult,
@@ -20,7 +20,7 @@ use std::{
 fn poll_after_reset<F: Fn(&UsbDevice<Unclaimed>) -> bool>(
     usb: &Rc<Usb>,
     f: F,
-) -> Result<UsbDevice<Unclaimed>, Error> {
+) -> Result<UsbDevice<Unclaimed>, Report> {
     let start_time = Instant::now();
     loop {
         thread::sleep(Duration::from_millis(200));
@@ -38,7 +38,7 @@ fn poll_after_reset<F: Fn(&UsbDevice<Unclaimed>) -> bool>(
     }
 }
 
-pub fn update_firmware(fw: FirmwareArchive) -> Result<(), Error> {
+pub fn update_firmware(fw: FirmwareArchive) -> Result<(), Report> {
     let fw = fw.decode()?;
 
     let usb = Usb::init()?;

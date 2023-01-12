@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use anyhow::Error;
+use eyre::Report;
 use clap::{builder::OsStringValueParser, Arg, ArgAction, ArgMatches, Command};
 use gb_cartpp_fwupd::FirmwareArchive;
 use log::{debug, error, warn};
@@ -42,7 +42,7 @@ fn build_app() -> Command {
         )
 }
 
-fn run(matches: &ArgMatches) -> Result<(), Error> {
+fn run(matches: &ArgMatches) -> Result<(), Report> {
     let (level_filter, config) = match matches.get_one::<u8>("v").copied().unwrap_or_default() {
         0 => (
             LevelFilter::Info,
@@ -106,7 +106,7 @@ fn run(matches: &ArgMatches) -> Result<(), Error> {
     Ok(())
 }
 
-fn main() -> Result<(), Error> {
+fn main() -> Result<(), Report> {
     let matches = build_app().get_matches();
     run(&matches)
 }
