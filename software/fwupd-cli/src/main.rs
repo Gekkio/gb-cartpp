@@ -2,48 +2,51 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use eyre::Report;
-use clap::{builder::OsStringValueParser, Arg, ArgAction, ArgMatches, Command};
-use gb_cartpp_fwupd::FirmwareArchive;
-use log::{debug, error, warn};
+use clap::{builder::PathBufValueParser, Arg, ArgAction, Command};
+use eyre::{eyre, Report};
+
+use log::error;
 use simplelog::{ColorChoice, LevelFilter, TermLogger, TerminalMode};
-use std::{
-    borrow::Cow,
-    ffi::OsString,
-    fs::File,
-    io::{self, BufReader},
-    process,
-};
+use std::{path::PathBuf, process};
 
 mod bootloader;
+mod update;
 
-fn build_app() -> Command {
-    Command::new("gb-cartpp-fwupd")
+fn build_cmd() -> Command {
+    Command::new("gbcartpp-fwupd")
         .version(env!("CARGO_PKG_VERSION"))
         .author(env!("CARGO_PKG_AUTHORS"))
         .arg(
             Arg::new("v")
                 .short('v')
                 .action(ArgAction::Count)
-                .help("Sets the level of verbosity"),
+                .help("Sets the level of verbosity")
+                .global(true),
         )
-        .arg(
-            Arg::new("allow-invalid-signature")
-                .long("allow-invalid-signature")
-                .action(ArgAction::SetTrue)
-                .help("Allow flashing firmware without a valid signature"),
-        )
-        .arg(
-            Arg::new("IMAGE")
-                .help("Sets the firmware image file to use")
-                .required(true)
-                .value_parser(OsStringValueParser::new())
-                .index(1),
+        .subcommand(
+            Command::new("update-firmware")
+                .about("Update the firmware of a GB-CARTPP device")
+                .arg(
+                    Arg::new("input")
+                        .help("Firmware image file")
+                        .value_name("FILE")
+                        .value_parser(PathBufValueParser::new()),
+                )
+                .arg(
+                    Arg::new("allow-invalid-signature")
+                        .long("allow-invalid-signature")
+                        .action(ArgAction::SetTrue)
+                        .help("Allow flashing firmware without a valid signature"),
+                ),
         )
 }
 
-fn run(matches: &ArgMatches) -> Result<(), Report> {
-    let (level_filter, config) = match matches.get_one::<u8>("v").copied().unwrap_or_default() {
+fn main() -> Result<(), Report> {
+    simple_eyre::install()?;
+
+    let matches = build_cmd().get_matches();
+
+    let (level_filter, config) = match matches.get_count("v") {
         0 => (
             LevelFilter::Info,
             simplelog::ConfigBuilder::new()
@@ -57,56 +60,22 @@ fn run(matches: &ArgMatches) -> Result<(), Report> {
 
     let _ = TermLogger::init(level_filter, config, TerminalMode::Mixed, ColorChoice::Auto);
 
-    let input = matches.get_one::<OsString>("IMAGE").unwrap();
-    let source = if input == "-" {
-        Cow::Borrowed("standard input")
-    } else {
-        input.to_string_lossy()
+    let result = {
+        if let Some(matches) = matches.subcommand_matches("update-firmware") {
+            let input = matches
+                .get_one::<PathBuf>("input")
+                .ok_or_else(|| eyre!("No input file specified"))?;
+            let allow_invalid_signature = matches.get_flag("allow-invalid-signature");
+            update::update_cmd(input, allow_invalid_signature)
+        } else {
+            Ok(build_cmd().print_help()?)
+        }
     };
-    debug!("Reading firmware image from {}", source);
-    let fw = (if input == "-" {
-        FirmwareArchive::from_reader(BufReader::new(io::stdin()))
-    } else {
-        let file = File::open(input)?;
-        FirmwareArchive::from_reader(BufReader::new(file))
-    })
-    .unwrap_or_else(|err| {
-        error!("Failed to read firmware image from {}: {}", source, err);
-        process::exit(1);
-    })
-    .unwrap_or_else(|| {
-        error!("No valid firmware image detected in {}", source);
-        process::exit(1);
-    });
-    let allow_invalid_signature = matches.get_flag("allow-invalid-signature");
-    let signature_ok = if fw.has_signature() {
-        debug!("Validating firmware image digital signature");
-        fw.has_valid_signature().unwrap_or_else(|err| {
-            if allow_invalid_signature {
-                warn!("Failed to read signature: {}", err);
-            } else {
-                error!("Failed to read signature: {}", err);
-            }
-            false
-        }) || allow_invalid_signature
-    } else if allow_invalid_signature {
-        warn!("The firmware image has no digital signature!");
-        true
-    } else {
-        error!("The firmware image has no digital signature!");
-        false
-    };
-    if !signature_ok {
-        error!("The firmware image is unofficial, corrupted, or has been tampered with, so flashing is prohibited");
-        error!("If you are absolutely sure what you are doing, you can use --allow-invalid-signature to allow flashing anyway. *THIS IS NOT SAFE AND MAY BRICK THE DEVICE*");
-        process::exit(1);
+    match result {
+        Ok(()) => Ok(()),
+        Err(err) => {
+            error!("{:#}", err);
+            process::exit(1);
+        }
     }
-    bootloader::update_firmware(fw)?;
-
-    Ok(())
-}
-
-fn main() -> Result<(), Report> {
-    let matches = build_app().get_matches();
-    run(&matches)
 }
