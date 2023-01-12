@@ -47,6 +47,9 @@ jobs:
     name: Build binaries (Linux)
     needs: [check]
     runs-on: ubuntu-latest
+    env:
+      CROSS_VERSION: 0.2.4
+      CROSS_SHA256: fe8c756219462a06f498e0df2077557f441054e1641d1946fd493ae9e7d83f5d
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -54,6 +57,8 @@ jobs:
         run: |
           rustup toolchain install stable --profile minimal
           rustup default stable
+      - name: Install cross
+        run: .github/scripts/install-cross.sh
       - name: Cache dependencies
         uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6
         with:
@@ -64,7 +69,7 @@ jobs:
       - name: Persist binaries
         uses: actions/upload-artifact@v3
         with:
-          name: x86_64-unknown-linux-gnu
+          name: gbcartpp-x86_64-unknown-linux-gnu
           path: |
             software/target/release/gbcartpp-fwupd
 
@@ -89,7 +94,7 @@ jobs:
       - name: Persist binaries
         uses: actions/upload-artifact@v3
         with:
-          name: x86_64-pc-windows-msvc
+          name: gbcartpp-x86_64-pc-windows-msvc
           path: |
             software/target/release/gbcartpp-fwupd.exe
 
@@ -118,12 +123,12 @@ jobs:
       - name: Persist binaries (x86_64)
         uses: actions/upload-artifact@v3
         with:
-          name: x86_64-apple-darwin
+          name: gbcartpp-x86_64-apple-darwin
           path: |
             software/target/release/gbcartpp-fwupd
       - name: Persist binaries (aarch64)
         uses: actions/upload-artifact@v3
         with:
-          name: aarch64-apple-darwin
+          name: gbcartpp-aarch64-apple-darwin
           path: |
             software/target/aarch64-apple-darwin/release/gbcartpp-fwupd
