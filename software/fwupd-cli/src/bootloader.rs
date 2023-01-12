@@ -113,8 +113,8 @@ pub fn update_firmware(fw: FirmwareArchive) -> Result<(), Error> {
     }
 
     let progress = ProgressBar::new(0x8000 - 0x800)
-        .with_style(ProgressStyle::default_bar().template("{msg} {bar} {percent} %"));
-    progress.enable_steady_tick(16);
+        .with_style(ProgressStyle::default_bar().template("{msg} {bar} {percent} %")?);
+    progress.enable_steady_tick(Duration::from_millis(16));
     progress.set_message("Updating flash: ");
     drv.write_flash(&fw, |addr| {
         progress.set_position((addr - 0x800) as u64);
@@ -124,19 +124,17 @@ pub fn update_firmware(fw: FirmwareArchive) -> Result<(), Error> {
     info!("Updating ID bytes");
     drv.write_id(&fw)?;
 
-    let style = ProgressStyle::default_bar().template("{msg} {bar} {percent} %");
+    let style = ProgressStyle::default_bar().template("{msg} {bar} {percent} %")?;
+    let error_style =
+        ProgressStyle::default_bar().template("{msg} {bar:.red} {percent} % {prefix:.red}")?;
     let progress = ProgressBar::new(0x8000 - 0x800).with_style(style.clone());
-    progress.enable_steady_tick(16);
+    progress.enable_steady_tick(Duration::from_millis(16));
     progress.set_message("Verifying flash:");
     let mut errored = false;
     let result = drv.verify_flash(&fw, |addr, result| {
         if let VerifyResult::Invalid { .. } = result {
             if !errored {
-                progress.set_style(
-                    style
-                        .clone()
-                        .template("{msg} {bar:.red} {percent} % {prefix:.red}"),
-                );
+                progress.set_style(error_style.clone());
                 progress.set_prefix("errors detected");
                 errored = true;
             }

@@ -15,12 +15,12 @@ name = "gbcartpp-fwupd"
 path = "src/main.rs"
 
 [dependencies]
-anyhow = "1.0.57"
-clap = "3.2.5"
+anyhow = "1.0.68"
+clap = "4.0.32"
 crc16 = "0.4.0"
 gb-cartpp-fwupd-lib = { path = "../fwupd-lib" }
-indicatif = "0.16.2"
-itertools = "0.10.3"
+indicatif = "0.17.2"
+itertools = "0.10.5"
 log = "0.4.17"
 simplelog = "0.12.0"
 

@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 use anyhow::Error;
-use clap::{builder::OsStringValueParser, App, Arg, ArgAction, ArgMatches};
+use clap::{builder::OsStringValueParser, Arg, ArgAction, ArgMatches, Command};
 use gb_cartpp_fwupd::FirmwareArchive;
 use log::{debug, error, warn};
 use simplelog::{ColorChoice, LevelFilter, TermLogger, TerminalMode};
@@ -17,23 +17,24 @@ use std::{
 
 mod bootloader;
 
-fn build_app() -> App<'static> {
-    App::new("gb-cartpp-fwupd")
+fn build_app() -> Command {
+    Command::new("gb-cartpp-fwupd")
         .version(env!("CARGO_PKG_VERSION"))
         .author(env!("CARGO_PKG_AUTHORS"))
         .arg(
-            Arg::with_name("v")
+            Arg::new("v")
                 .short('v')
                 .action(ArgAction::Count)
                 .help("Sets the level of verbosity"),
         )
         .arg(
-            Arg::with_name("allow-invalid-signature")
+            Arg::new("allow-invalid-signature")
                 .long("allow-invalid-signature")
+                .action(ArgAction::SetTrue)
                 .help("Allow flashing firmware without a valid signature"),
         )
         .arg(
-            Arg::with_name("IMAGE")
+            Arg::new("IMAGE")
                 .help("Sets the firmware image file to use")
                 .required(true)
                 .value_parser(OsStringValueParser::new())
@@ -77,7 +78,7 @@ fn run(matches: &ArgMatches) -> Result<(), Error> {
         error!("No valid firmware image detected in {}", source);
         process::exit(1);
     });
-    let allow_invalid_signature = matches.is_present("allow-invalid-signature");
+    let allow_invalid_signature = matches.get_flag("allow-invalid-signature");
     let signature_ok = if fw.has_signature() {
         debug!("Validating firmware image digital signature");
         fw.has_valid_signature().unwrap_or_else(|err| {
