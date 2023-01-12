@@ -64,7 +64,7 @@ jobs:
         with:
           workspaces: software
       - name: Compile
-        run: cargo build --all --release
+        run: cross build --all --release
         working-directory: software
       - name: Persist binaries
         uses: actions/upload-artifact@v3
