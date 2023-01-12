@@ -7,6 +7,7 @@ name = "gb-cartpp-fwupd-lib"
 version = "0.0.0"
 authors = ["Joonas Javanainen <joonas.javanainen@gmail.com>"]
 edition = "2021"
+description = "Firmware updater for GB-CARTPP cartridge flashers/dumpers (library)"
 license = "MIT OR Apache-2.0"
 
 [lib]
