@@ -24,11 +24,7 @@ fn poll_after_reset<F: Fn(&UsbDevice<Unclaimed>) -> bool>(
     let start_time = Instant::now();
     loop {
         thread::sleep(Duration::from_millis(200));
-        if let Ok(device) = Usb::list_devices(&usb)?
-            .into_iter()
-            .filter(&f)
-            .exactly_one()
-        {
+        if let Ok(device) = Usb::list_devices(usb)?.into_iter().filter(&f).exactly_one() {
             break Ok(device);
         }
         if start_time.elapsed() > Duration::from_secs(10) {
@@ -71,9 +67,11 @@ pub fn update_firmware(fw: FirmwareArchive) -> Result<(), Report> {
     }
     let mut device = devices
         .into_iter()
-        .filter(|dev| match dev.kind {
-            UsbDeviceKind::Bootloader { .. } | UsbDeviceKind::Firmware { .. } => true,
-            _ => false,
+        .filter(|dev| {
+            matches!(
+                dev.kind,
+                UsbDeviceKind::Bootloader { .. } | UsbDeviceKind::Firmware { .. }
+            )
         })
         .exactly_one()
         .unwrap();
@@ -127,7 +125,7 @@ pub fn update_firmware(fw: FirmwareArchive) -> Result<(), Report> {
     let style = ProgressStyle::default_bar().template("{msg} {bar} {percent} %")?;
     let error_style =
         ProgressStyle::default_bar().template("{msg} {bar:.red} {percent} % {prefix:.red}")?;
-    let progress = ProgressBar::new(0x8000 - 0x800).with_style(style.clone());
+    let progress = ProgressBar::new(0x8000 - 0x800).with_style(style);
     progress.enable_steady_tick(Duration::from_millis(16));
     progress.set_message("Verifying flash:");
     let mut errored = false;

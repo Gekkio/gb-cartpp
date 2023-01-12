@@ -32,10 +32,10 @@ impl Drop for Usb {
 #[derive(Debug)]
 pub struct UsbDeviceHandle {
     raw: *mut libusb_device_handle,
-    port_numbers: [u8; 7],
+    _port_numbers: [u8; 7],
     pub(crate) address: u8,
     pub(crate) version: (u8, u8),
-    usb: Rc<Usb>,
+    _usb: Rc<Usb>,
 }
 
 impl Drop for UsbDeviceHandle {
@@ -79,7 +79,7 @@ impl Usb {
     pub fn list_devices(usb: &Rc<Usb>) -> Result<Vec<UsbDevice<Unclaimed>>, DriverError> {
         let mut raw: *const *mut libusb_device = ptr::null_mut();
         let count = check_libusb(unsafe { libusb_get_device_list(usb.ctx, &mut raw) as i32 })?;
-        let list = unsafe { slice::from_raw_parts(raw, count as usize) };
+        let list = unsafe { slice::from_raw_parts(raw, count) };
         let result = Self::detect_devices(usb, list);
         unsafe { libusb_free_device_list(raw, 1) };
         result
@@ -104,10 +104,10 @@ impl Usb {
         let [ver_l, ver_h] = descriptor.bcdDevice.to_le_bytes();
         Ok(UsbDeviceHandle {
             raw: handle,
-            port_numbers,
+            _port_numbers: port_numbers,
             address,
             version: (ver_h, ver_l),
-            usb: usb.clone(),
+            _usb: usb.clone(),
         })
     }
     fn identify_device(
@@ -172,7 +172,7 @@ impl UsbDeviceHandle {
                 buffer.len() as i32,
             )
         };
-        check_libusb(len as i32)?;
+        check_libusb(len)?;
         let code_points = buffer[..(len as usize)]
             .chunks_exact(2)
             .skip(1)
@@ -272,16 +272,10 @@ pub enum UsbDeviceKind {
 
 impl UsbDeviceKind {
     pub fn is_bootloader(&self) -> bool {
-        match *self {
-            UsbDeviceKind::Bootloader { .. } => true,
-            _ => false,
-        }
+        matches!(self, UsbDeviceKind::Bootloader { .. })
     }
     pub fn is_firmware(&self) -> bool {
-        match *self {
-            UsbDeviceKind::Firmware { .. } => true,
-            _ => false,
-        }
+        matches!(self, UsbDeviceKind::Firmware { .. })
     }
 }
 

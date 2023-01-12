@@ -55,7 +55,7 @@ impl BootloaderDriver {
         let rcon = self.device.read_byte(0x8000_0fd0)?;
         let stkptr = self.device.read_byte(0x8000_0ffc)?;
         Ok(Diagnostics {
-            rcon: Rcon::from_bits_truncate((rcon & 0b111_00000) | (!rcon & 0b000_11111)),
+            rcon: Rcon::from_bits_truncate((rcon & 0b1110_0000) | (!rcon & 0b0001_1111)),
             stkptr: StkPtr::from_bits_truncate(stkptr),
         })
     }
@@ -65,7 +65,7 @@ impl BootloaderDriver {
         buffer.truncate(len);
         Ok(buffer)
     }
-    pub fn write_flash<F: FnMut(u32) -> ()>(
+    pub fn write_flash<F: FnMut(u32)>(
         &self,
         fw: &FirmwareImage,
         mut cb: F,
@@ -89,7 +89,7 @@ impl BootloaderDriver {
         }
         Ok(crc16::State::<crc16::XMODEM>::calculate(&data))
     }
-    pub fn verify_flash<F: FnMut(u32, VerifyResult) -> ()>(
+    pub fn verify_flash<F: FnMut(u32, VerifyResult)>(
         &self,
         fw: &FirmwareImage,
         mut cb: F,

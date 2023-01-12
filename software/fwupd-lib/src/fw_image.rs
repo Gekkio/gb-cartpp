@@ -172,7 +172,7 @@ impl FirmwareImage {
                 }
             })
     }
-    pub fn iter_id_bytes<'a>(&'a self) -> impl Iterator<Item = (u32, u8)> + 'a {
+    pub fn iter_id_bytes(&self) -> impl Iterator<Item = (u32, u8)> + '_ {
         self.id
             .iter()
             .zip(self.id_mask.iter())
@@ -186,7 +186,7 @@ impl FirmwareImage {
                 }
             })
     }
-    pub fn iter_config_bytes<'a>(&'a self) -> impl Iterator<Item = (u32, u8)> + 'a {
+    pub fn iter_config_bytes(&self) -> impl Iterator<Item = (u32, u8)> + '_ {
         self.config
             .iter()
             .zip(self.config_mask.iter())
