@@ -73,7 +73,7 @@ jobs:
         with:
           name: gbcartpp-x86_64-unknown-linux-gnu
           path: |
-            software/target/release/x86_64-unknown-linux-gnu/gbcartpp-fwupd
+            software/target/x86_64-unknown-linux-gnu/release/gbcartpp-fwupd
 
   build_binaries_windows:
     name: Build binaries (Windows)
