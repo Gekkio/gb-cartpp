@@ -29,7 +29,8 @@ jobs:
           rustup default stable
       - name: Cache dependencies
         uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6
-        workspaces: software
+        with:
+          workspaces: software
       - name: Run checks
         run: |
           cargo check --all --all-targets --no-default-features
@@ -55,10 +56,17 @@ jobs:
           rustup default stable
       - name: Cache dependencies
         uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6
-        workspaces: software
+        with:
+          workspaces: software
       - name: Compile
         run: cargo build --all --release
         working-directory: software
+      - name: Persist binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: gb-cartpp-windows
+          path: |
+            software/target/release/gbcartpp-fwupd
 
   build_binaries_windows:
     name: Build binaries (Windows)
@@ -73,10 +81,17 @@ jobs:
           rustup default stable
       - name: Cache dependencies
         uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6
-        workspaces: software
+        with:
+          workspaces: software
       - name: Compile
         run: cargo build --all --release
         working-directory: software
+      - name: Persist binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: gb-cartpp-windows
+          path: |
+            software/target/release/gbcartpp-fwupd.exe
 
   build_binaries_mac:
     name: Build binaries (macOS)
@@ -91,7 +106,14 @@ jobs:
           rustup default stable
       - name: Cache dependencies
         uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6
-        workspaces: software
+        with:
+          workspaces: software
       - name: Compile
         run: cargo build --all --release
         working-directory: software
+      - name: Persist binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: gb-cartpp-windows
+          path: |
+            software/target/release/gbcartpp-fwupd
