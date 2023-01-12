@@ -1,0 +1,89 @@
+# SPDX-FileCopyrightText: 2019-2022 Joonas Javanainen <joonas.javanainen@gmail.com>
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+name: ci
+on:
+  pull_request:
+  push:
+    branches:
+    - main
+
+env:
+  CARGO_INCREMENTAL: 0
+
+jobs:
+  check:
+    name: Run checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install stable toolchain
+        run: |
+          rustup toolchain install stable --profile minimal --component rustfmt --component clippy
+          rustup default stable
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6
+      - name: Run checks
+        run: |
+          cargo check --all --all-targets --no-default-features
+          cargo check --all --all-targets
+        working-directory: software
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+        working-directory: software
+      - name: Run clippy
+        run: cargo clippy --all
+        working-directory: software
+
+  build_binaries_linux:
+    name: Build binaries (Linux)
+    needs: [check]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install toolchain
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6
+      - name: Compile
+        run: cargo build --all --release
+        working-directory: software
+
+  build_binaries_windows:
+    name: Build binaries (Windows)
+    needs: [check]
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install toolchain
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6
+      - name: Compile
+        run: cargo build --all --release
+        working-directory: software
+
+  build_binaries_mac:
+    name: Build binaries (macOS)
+    needs: [check]
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install toolchain
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6
+      - name: Compile
+        run: cargo build --all --release
+        working-directory: software
