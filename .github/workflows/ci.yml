@@ -28,7 +28,7 @@ jobs:
           rustup toolchain install stable --profile minimal --component rustfmt --component clippy
           rustup default stable
       - name: Cache dependencies
-        uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6
+        uses: Swatinem/rust-cache@a95ba195448af2da9b00fb742d14ffaaf3c21f43
         with:
           workspaces: software
       - name: Run checks
@@ -48,8 +48,8 @@ jobs:
     needs: [check]
     runs-on: ubuntu-latest
     env:
-      CROSS_VERSION: 0.2.4
-      CROSS_SHA256: fe8c756219462a06f498e0df2077557f441054e1641d1946fd493ae9e7d83f5d
+      CROSS_VERSION: 0.2.5
+      CROSS_SHA256: 642375d1bcf3bd88272c32ba90e999f3d983050adf45e66bd2d3887e8e838bad
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -62,7 +62,7 @@ jobs:
           .github/scripts/install-cross.sh
           echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Cache dependencies
-        uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6
+        uses: Swatinem/rust-cache@a95ba195448af2da9b00fb742d14ffaaf3c21f43
         with:
           workspaces: software
       - name: Compile
@@ -87,7 +87,7 @@ jobs:
           rustup toolchain install stable --profile minimal
           rustup default stable
       - name: Cache dependencies
-        uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6
+        uses: Swatinem/rust-cache@a95ba195448af2da9b00fb742d14ffaaf3c21f43
         with:
           workspaces: software
       - name: Compile
@@ -113,7 +113,7 @@ jobs:
           rustup target add aarch64-apple-darwin
           rustup default stable
       - name: Cache dependencies
-        uses: Swatinem/rust-cache@359a70e43a0bb8a13953b04a90f76428b4959bb6
+        uses: Swatinem/rust-cache@a95ba195448af2da9b00fb742d14ffaaf3c21f43
         with:
           workspaces: software
       - name: Compile (x86_64)
